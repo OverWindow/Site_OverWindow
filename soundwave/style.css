@@ -1,0 +1,40 @@
+﻿{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: black;
+    overflow: hidden;
+}
+
+#snail {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    z-index: -1;
+}
+
+#snail path{
+    stroke-dasharray: 1520;
+    stroke-dashoffset: 1520;
+    animation: animatePath 15s ease-in-out infinite;
+}
+
+@keyframes animatePath {
+
+    0%{
+        stroke-dashoffset: 700;
+    }
+
+    50%{
+        stroke-dashoffset: -700%;
+    }
+
+    100%{
+        stroke-dashoffset: 700%;
+    }
+}
