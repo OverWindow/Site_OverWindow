@@ -20,6 +20,10 @@ function getAuthHeaders() {
 }
 
 export async function getPublicLinks() {
+  console.log('MODE =', import.meta.env.MODE);
+  console.log('VITE_API_BASE_URL =', import.meta.env.VITE_API_BASE_URL);
+  console.log('ALL_ENV =', import.meta.env);
+  console.log(API_BASE_URL)
   const response = await fetch(`${API_BASE_URL}/links/public`, {
     method: "GET",
     headers: {
