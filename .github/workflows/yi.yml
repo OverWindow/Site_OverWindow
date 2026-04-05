@@ -45,7 +45,10 @@ jobs:
           push: true
           tags: ${{ steps.meta_backend.outputs.tags }}
           labels: ${{ steps.meta_backend.outputs.labels }}
-          
+
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
       - name: Redeploy Railway
         run: railway redeploy
         env:
@@ -88,6 +91,10 @@ jobs:
             VITE_API_BASE_URL=${{ secrets.PROD_FRONTEND_API_BASE_URL }}
           tags: ${{ steps.meta_frontend.outputs.tags }}
           labels: ${{ steps.meta_frontend.outputs.labels }}
+
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
 
       - name: Redeploy Railway
         run: railway redeploy
