@@ -47,12 +47,6 @@ jobs:
           labels: ${{ steps.meta_backend.outputs.labels }}
 
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-      - name: Redeploy Railway
-        run: railway redeploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   frontend:
     name: Build Frontend Image
@@ -93,10 +87,3 @@ jobs:
           labels: ${{ steps.meta_frontend.outputs.labels }}
 
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Redeploy Railway
-        run: railway redeploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
