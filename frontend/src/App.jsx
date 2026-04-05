@@ -21,7 +21,9 @@ export default function App() {
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
-
+  console.log("MODE =", import.meta.env.MODE);
+  console.log("VITE_API_BASE_URL =", import.meta.env.VITE_API_BASE_URL);
+  console.log("ALL_ENV =", import.meta.env);
   useEffect(() => {
     async function bootstrapAuth() {
       if (!hasAuthTokens()) {
