@@ -45,6 +45,11 @@ jobs:
           push: true
           tags: ${{ steps.meta_backend.outputs.tags }}
           labels: ${{ steps.meta_backend.outputs.labels }}
+          
+      - name: Redeploy Railway
+        run: railway redeploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   frontend:
     name: Build Frontend Image
@@ -83,3 +88,8 @@ jobs:
             VITE_API_BASE_URL=${{ secrets.PROD_FRONTEND_API_BASE_URL }}
           tags: ${{ steps.meta_frontend.outputs.tags }}
           labels: ${{ steps.meta_frontend.outputs.labels }}
+
+      - name: Redeploy Railway
+        run: railway redeploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
