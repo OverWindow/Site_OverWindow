@@ -119,13 +119,13 @@ export default function App() {
     <div className="app minimal-app">
       <div className="shell">
         <header className="topbar">
-          {isAdmin && <div className="admin-indicator">admin</div>}
           <div className="brand-mark">OverWindow</div>
 
           <div className="topbar-actions">
             <Link to="/sites" className="top-link">
               Sites
             </Link>
+            {isAdmin && <div className="admin-indicator">admin</div>}
 
             {!loggedIn ? (
               <button
@@ -155,12 +155,13 @@ export default function App() {
             <p className="eyebrow">Developer</p>
             <h1 className="name">김현진</h1>
             <p className="intro">
-              AI와 백엔드 시스템을 중심으로 개발하고 있습니다.
+              복잡한 문제를 가장 빠르게 작동하는 시스템으로 만듭니다.
             </p>
             <div className="line" />
             <p className="bio">
-              AI 시스템과 백엔드 아키텍처에 관심이 있으며, 안정적이고 단순한
-              구조의 소프트웨어를 만드는 것을 지향합니다.
+              복잡한 요구사항을 정확히 이해하고, AI와 백엔드 기술로 실제로
+              작동하는 시스템을 구현합니다. 빠른 이해와 확실한 결과로 문제를
+              해결하는 개발자입니다.
             </p>
           </div>
         </main>
