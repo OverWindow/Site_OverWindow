@@ -95,6 +95,7 @@ class Link(Base):
     url = Column(String(2048), nullable=False)
     description = Column(Text, nullable=True)
     icon_name = Column(String(100), nullable=True)
+    favicon_url = Column(String(2048), nullable=True)
     sort_order = Column(Integer, nullable=False, default=0)
     is_visible = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())

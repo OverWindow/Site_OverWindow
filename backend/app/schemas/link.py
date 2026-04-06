@@ -22,6 +22,7 @@ class LinkCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     url: HttpUrl
     description: Optional[str] = None
+    favicon_url: Optional[str] = None
     icon_name: Optional[str] = Field(None, max_length=100)
     sort_order: int = 0
     is_visible: bool = True
@@ -33,6 +34,7 @@ class LinkUpdate(BaseModel):
     url: Optional[HttpUrl] = None
     description: Optional[str] = None
     icon_name: Optional[str] = Field(None, max_length=100)
+    favicon_url: Optional[str] = None
     sort_order: Optional[int] = None
     is_visible: Optional[bool] = None
 
@@ -44,6 +46,7 @@ class LinkResponse(BaseModel):
     url: str
     description: Optional[str] = None
     icon_name: Optional[str] = None
+    favicon_url: Optional[str] = None
     sort_order: int
     is_visible: bool
     created_at: datetime

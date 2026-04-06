@@ -338,9 +338,19 @@ export default function Sites() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          <span className="compact-link-title">
-                            {link.title}
-                          </span>
+                          <div className="compact-link-main">
+                            {link.favicon_url && (
+                              <img
+                                className="link-favicon"
+                                src={link.favicon_url}
+                                alt=""
+                                loading="lazy"
+                              />
+                            )}
+                            <span className="compact-link-title">
+                              {link.title}
+                            </span>
+                          </div>
                           <span className="compact-link-meta">
                             {link.description || link.url}
                           </span>
@@ -375,6 +385,7 @@ export default function Sites() {
                               )
                             }
                           />
+
                           <input
                             className="link-edit-url"
                             value={link.url}
@@ -387,6 +398,7 @@ export default function Sites() {
                               )
                             }
                           />
+
                           <input
                             className="link-edit-desc"
                             value={link.description || ""}
@@ -400,20 +412,24 @@ export default function Sites() {
                               )
                             }
                           />
-                          <button
-                            className="mini-text-button"
-                            type="button"
-                            onClick={() => handleSaveLink(link)}
-                          >
-                            save
-                          </button>
-                          <button
-                            className="mini-text-button mini-danger"
-                            type="button"
-                            onClick={() => handleDeleteLink(link.id)}
-                          >
-                            delete
-                          </button>
+
+                          <div className="admin-link-actions">
+                            <button
+                              className="mini-text-button"
+                              type="button"
+                              onClick={() => handleSaveLink(link)}
+                            >
+                              save
+                            </button>
+
+                            <button
+                              className="mini-text-button mini-danger"
+                              type="button"
+                              onClick={() => handleDeleteLink(link.id)}
+                            >
+                              delete
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -477,13 +493,16 @@ export default function Sites() {
                           )
                         }
                       />
-                      <button
-                        className="mini-action-button"
-                        type="button"
-                        onClick={() => handleCreateLink(category.id)}
-                      >
-                        add
-                      </button>
+
+                      <div className="admin-link-actions">
+                        <button
+                          className="mini-action-button"
+                          type="button"
+                          onClick={() => handleCreateLink(category.id)}
+                        >
+                          add
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -13,6 +13,8 @@ from app.schemas.link import (
     LinkCategoryWithLinksResponse,
 )
 from app.dependencies import require_admin
+from app.utils.favicon import extract_favicon_url, normalize_url
+
 
 
 router = APIRouter(prefix="/links", tags=["links"])
@@ -191,12 +193,16 @@ def create_link(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="카테고리를 찾을 수 없습니다.",
         )
+        
+    normalized_url = normalize_url(str(payload.url))
+    favicon_url = extract_favicon_url(normalized_url)
 
     link = Link(
         category_id=payload.category_id,
         title=payload.title,
         url=str(payload.url),
         description=payload.description,
+        favicon_url=favicon_url,
         icon_name=payload.icon_name,
         sort_order=payload.sort_order,
         is_visible=payload.is_visible,
@@ -224,7 +230,11 @@ def update_link(
     data = payload.model_dump(exclude_unset=True)
 
     if "category_id" in data:
-        category = db.query(LinkCategory).filter(LinkCategory.id == data["category_id"]).first()
+        category = (
+            db.query(LinkCategory)
+            .filter(LinkCategory.id == data["category_id"])
+            .first()
+        )
         if not category:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -232,7 +242,12 @@ def update_link(
             )
 
     if "url" in data and data["url"] is not None:
-        data["url"] = str(data["url"])
+        normalized_url = normalize_url(str(data["url"]))
+        data["url"] = normalized_url
+
+        new_favicon_url = extract_favicon_url(normalized_url)
+        if new_favicon_url:
+            data["favicon_url"] = new_favicon_url
 
     for key, value in data.items():
         setattr(link, key, value)
