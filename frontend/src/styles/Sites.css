@@ -26,7 +26,7 @@
 }
 
 .sites-shell {
-  width: min(900px, calc(100% - 56px));
+  width: min(1300px, calc(100% - 56px));
   margin: 0 auto;
   padding: 52px 0 64px;
 }
@@ -132,7 +132,7 @@
 
 .sites-sections {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 40px 32px;
   align-items: start;
 }
