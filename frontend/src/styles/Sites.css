@@ -31,7 +31,7 @@
 }
 
 .sites-shell {
-  width: min(1600px, calc(100% - 72px));
+  width: min(1300px, calc(100% - 24px));
   margin: 0 auto;
   padding: 52px 0 72px;
 }
@@ -379,7 +379,7 @@
 
 @media (max-width: 1280px) {
   .sites-shell {
-    width: min(1280px, calc(100% - 48px));
+    width: min(1280px, calc(100% - 20px));
   }
 
   .sites-sections {
@@ -390,7 +390,7 @@
 
 @media (max-width: 900px) {
   .sites-shell {
-    width: min(100% - 32px, 900px);
+    width: min(100% - 16px, 900px);
     padding-top: 60px;
   }
 

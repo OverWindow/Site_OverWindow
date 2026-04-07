@@ -2,10 +2,6 @@ import "./App.css";
 import profileImage from "/profile.jpg";
 
 export default function App() {
-  console.log("MODE =", import.meta.env.MODE);
-  console.log("VITE_API_BASE_URL =", import.meta.env.VITE_API_BASE_URL);
-  console.log("ALL_ENV =", import.meta.env);
-
   return (
     <main className="hero">
       <div className="portrait-wrap">
