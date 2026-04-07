@@ -8,7 +8,7 @@ export default function HeaderBar({
 }) {
   return (
     <header className="topbar">
-      <Link to={homeTo} className="brand-mark">
+      <Link to={homeTo} className="brand-mark" aria-label="Go to home">
         {homeLabel}
       </Link>
 

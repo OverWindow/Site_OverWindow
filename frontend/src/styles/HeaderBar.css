@@ -51,6 +51,15 @@
   color: #111111;
 }
 
+.top-link-disabled {
+  opacity: 0.38;
+}
+
+.top-link-disabled:hover {
+  background: rgba(17, 17, 17, 0.02);
+  color: #555555;
+}
+
 .admin-indicator {
   padding: 4px 0;
   margin-left: 8px;

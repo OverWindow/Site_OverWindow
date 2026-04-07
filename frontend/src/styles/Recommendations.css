@@ -1,0 +1,237 @@
+.recommendations-page {
+  min-height: calc(100vh - 96px);
+  padding: 28px 0 56px;
+}
+
+.recommendations-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.recommendations-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.recommendations-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.42);
+}
+
+.recommendations-title {
+  margin: 0;
+  max-width: 800px;
+  font-size: clamp(20px, 5vw, 30px);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  color: #111111;
+}
+
+.recommendations-subtitle {
+  margin: 18px 0 0;
+  max-width: 720px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: rgba(17, 17, 17, 0.62);
+}
+
+.recommendations-reset,
+.recommendations-submit {
+  border: none;
+  border-radius: 999px;
+  background: #111111;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+}
+
+.recommendations-reset {
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.recommendations-submit {
+  align-self: flex-start;
+  padding: 14px 22px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.recommendations-reset:hover,
+.recommendations-submit:hover {
+  background: var(--point-color);
+  transform: translateY(-1px);
+}
+
+.recommendations-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.recommendations-composer,
+.recommendation-analysis {
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(250, 248, 242, 0.98));
+  box-shadow: 0 24px 60px rgba(17, 17, 17, 0.06);
+}
+
+.recommendations-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px;
+}
+
+.recommendations-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.45);
+}
+
+.recommendations-textarea {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 20px 22px;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #111111;
+  resize: vertical;
+  outline: none;
+}
+
+.recommendations-textarea:focus {
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.12);
+}
+
+.recommendations-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.recommendations-preview div,
+.recommendation-card {
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 18px;
+}
+
+.recommendations-preview span {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.42);
+}
+
+.recommendations-preview p,
+.recommendation-analysis p {
+  margin: 0;
+  line-height: 1.75;
+  color: rgba(17, 17, 17, 0.74);
+}
+
+.recommendations-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 14px;
+}
+
+.recommendations-results {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.recommendation-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.recommendation-card {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.38);
+  box-shadow: 0 18px 34px rgba(17, 17, 17, 0.07);
+}
+
+.recommendation-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recommendation-card-top h3 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.recommendation-card-top span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--point-color);
+}
+
+.recommendation-url {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.46);
+  word-break: break-all;
+}
+
+.recommendation-description {
+  margin: 12px 0 0;
+  line-height: 1.7;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+.recommendation-analysis {
+  padding: 24px 26px;
+}
+
+@media (max-width: 960px) {
+  .recommendations-header {
+    flex-direction: column;
+  }
+
+  .recommendations-preview,
+  .recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+}

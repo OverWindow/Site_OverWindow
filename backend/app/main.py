@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from app.router import auth, links
+from app.router import ai, auth, links
 
 app = FastAPI(
     swagger_ui_parameters={"persistAuthorization": True}
@@ -20,6 +20,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(links.router)
+app.include_router(ai.router)
 
 @app.get("/api/health")
 def health_check():
