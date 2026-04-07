@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   getPublicLinks,
   getAdminCategories,
@@ -51,7 +50,7 @@ export default function Sites() {
         : await getPublicLinks();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      setPageError(error.message || "데이터를 불러오지 못했습니다.");
+      setPageError(error.message || "?�이?��? 불러?��? 못했?�니??");
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +108,7 @@ export default function Sites() {
   };
 
   const handleDeleteCategory = async (categoryId) => {
-    const ok = window.confirm("이 카테고리를 삭제할까요?");
+    const ok = window.confirm("??카테고리�???��?�까??");
     if (!ok) return;
 
     try {
@@ -154,7 +153,7 @@ export default function Sites() {
   };
 
   const handleDeleteLink = async (linkId) => {
-    const ok = window.confirm("이 링크를 삭제할까요?");
+    const ok = window.confirm("??링크�???��?�까??");
     if (!ok) return;
 
     try {
@@ -201,6 +200,7 @@ export default function Sites() {
           description: "",
         },
       }));
+      setOpenNewLinkCategoryId((prev) => (prev === categoryId ? null : prev));
 
       await loadData(true);
     } catch (error) {
@@ -212,49 +212,41 @@ export default function Sites() {
 
   return (
     <div className="sites-page">
-      <div className="sites-back-wrap">
-        <Link to="/" className="sites-back-link">
-          ← Back
-        </Link>
-      </div>
-
       <div className="sites-shell">
         <header className="sites-header">
           <div className="sites-header-row">
-            <div>
+            <div className="sites-header-copy">
               <p className="sites-kicker">Archive</p>
               <h1 className="sites-title">Sites</h1>
             </div>
 
-            {isAdmin && <div className="admin-chip">admin</div>}
+            {isAdmin && (
+              <section className="admin-create-category">
+                <form className="mini-inline-form" onSubmit={handleCreateCategory}>
+                  <input
+                    className="mini-input"
+                    placeholder="new category"
+                    value={newCategoryName}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewCategoryName(value);
+                      setNewCategorySlug(slugify(value));
+                    }}
+                  />
+                  <input
+                    className="mini-input mini-input-slug"
+                    placeholder="slug"
+                    value={newCategorySlug}
+                    onChange={(e) => setNewCategorySlug(e.target.value)}
+                  />
+                  <button className="mini-action-button" type="submit">
+                    add
+                  </button>
+                </form>
+              </section>
+            )}
           </div>
         </header>
-
-        {isAdmin && (
-          <section className="admin-create-category">
-            <form className="mini-inline-form" onSubmit={handleCreateCategory}>
-              <input
-                className="mini-input"
-                placeholder="new category"
-                value={newCategoryName}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setNewCategoryName(value);
-                  setNewCategorySlug(slugify(value));
-                }}
-              />
-              <input
-                className="mini-input mini-input-slug"
-                placeholder="slug"
-                value={newCategorySlug}
-                onChange={(e) => setNewCategorySlug(e.target.value)}
-              />
-              <button className="mini-action-button" type="submit">
-                add
-              </button>
-            </form>
-          </section>
-        )}
 
         {isLoading && <p className="sites-info-text">Loading...</p>}
         {!isLoading && pageError && (
@@ -287,7 +279,13 @@ export default function Sites() {
                   </div>
 
                   {isAdmin && openCategoryEditorId === category.id && (
-                    <div className="category-admin-row">
+                    <form
+                      className="category-admin-row"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSaveCategory(category);
+                      }}
+                    >
                       <input
                         className="category-title-input"
                         value={category.name}
@@ -310,11 +308,7 @@ export default function Sites() {
                           )
                         }
                       />
-                      <button
-                        className="mini-text-button"
-                        type="button"
-                        onClick={() => handleSaveCategory(category)}
-                      >
+                      <button className="mini-text-button" type="submit">
                         save
                       </button>
                       <button
@@ -324,7 +318,7 @@ export default function Sites() {
                       >
                         delete
                       </button>
-                    </div>
+                    </form>
                   )}
                 </div>
 
@@ -372,7 +366,13 @@ export default function Sites() {
                       </div>
 
                       {isAdmin && openLinkEditorId === link.id && (
-                        <div className="admin-link-row">
+                        <form
+                          className="admin-link-row"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSaveLink(link);
+                          }}
+                        >
                           <input
                             className="link-edit-title"
                             value={link.title}
@@ -414,11 +414,7 @@ export default function Sites() {
                           />
 
                           <div className="admin-link-actions">
-                            <button
-                              className="mini-text-button"
-                              type="button"
-                              onClick={() => handleSaveLink(link)}
-                            >
+                            <button className="mini-text-button" type="submit">
                               save
                             </button>
 
@@ -430,7 +426,7 @@ export default function Sites() {
                               delete
                             </button>
                           </div>
-                        </div>
+                        </form>
                       )}
                     </div>
                   ))}
@@ -454,7 +450,13 @@ export default function Sites() {
                   )}
 
                   {isAdmin && openNewLinkCategoryId === category.id && (
-                    <div className="admin-new-link-row">
+                    <form
+                      className="admin-new-link-row"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleCreateLink(category.id);
+                      }}
+                    >
                       <input
                         className="link-edit-title"
                         placeholder="title"
@@ -472,19 +474,13 @@ export default function Sites() {
                         placeholder="url"
                         value={newLinkByCategory[category.id]?.url || ""}
                         onChange={(e) =>
-                          handleNewLinkChange(
-                            category.id,
-                            "url",
-                            e.target.value,
-                          )
+                          handleNewLinkChange(category.id, "url", e.target.value)
                         }
                       />
                       <input
                         className="link-edit-desc"
                         placeholder="note"
-                        value={
-                          newLinkByCategory[category.id]?.description || ""
-                        }
+                        value={newLinkByCategory[category.id]?.description || ""}
                         onChange={(e) =>
                           handleNewLinkChange(
                             category.id,
@@ -495,15 +491,11 @@ export default function Sites() {
                       />
 
                       <div className="admin-link-actions">
-                        <button
-                          className="mini-action-button"
-                          type="button"
-                          onClick={() => handleCreateLink(category.id)}
-                        >
+                        <button className="mini-action-button" type="submit">
                           add
                         </button>
                       </div>
-                    </div>
+                    </form>
                   )}
                 </div>
               </section>
