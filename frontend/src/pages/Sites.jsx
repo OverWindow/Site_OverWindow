@@ -20,6 +20,27 @@ function slugify(value) {
     .replace(/[^a-z0-9-_]/g, "");
 }
 
+function reorderItems(items, draggedId, targetId) {
+  const draggedIndex = items.findIndex((item) => item.id === draggedId);
+  const targetIndex = items.findIndex((item) => item.id === targetId);
+
+  if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) {
+    return items;
+  }
+
+  const nextItems = [...items];
+  const [draggedItem] = nextItems.splice(draggedIndex, 1);
+  nextItems.splice(targetIndex, 0, draggedItem);
+  return nextItems;
+}
+
+function applySortOrder(items) {
+  return items.map((item, index) => ({
+    ...item,
+    sort_order: index + 1,
+  }));
+}
+
 export default function Sites() {
   const [categories, setCategories] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -34,6 +55,11 @@ export default function Sites() {
   const [openCategoryEditorId, setOpenCategoryEditorId] = useState(null);
   const [openLinkEditorId, setOpenLinkEditorId] = useState(null);
   const [openNewLinkCategoryId, setOpenNewLinkCategoryId] = useState(null);
+  const [isSiteEditOpen, setIsSiteEditOpen] = useState(false);
+  const [draggingCategoryId, setDraggingCategoryId] = useState(null);
+  const [dragOverCategoryId, setDragOverCategoryId] = useState(null);
+  const [draggingLinkMeta, setDraggingLinkMeta] = useState(null);
+  const [dragOverLinkId, setDragOverLinkId] = useState(null);
 
   useEffect(() => {
     const admin = getIsAdmin();
@@ -105,6 +131,19 @@ export default function Sites() {
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  const persistCategoryOrder = async (orderedCategories) => {
+    await Promise.all(
+      orderedCategories.map((category) =>
+        updateCategory(category.id, {
+          name: category.name,
+          slug: category.slug,
+          sort_order: Number(category.sort_order) || 0,
+          is_visible: !!category.is_visible,
+        }),
+      ),
+    );
   };
 
   const handleDeleteCategory = async (categoryId) => {
@@ -208,6 +247,134 @@ export default function Sites() {
     }
   };
 
+  const persistLinkOrder = async (links) => {
+    await Promise.all(
+      links.map((link) =>
+        updateLink(link.id, {
+          category_id: Number(link.category_id),
+          title: link.title,
+          url: link.url,
+          description: link.description || null,
+          icon_name: link.icon_name || null,
+          sort_order: Number(link.sort_order) || 0,
+          is_visible: !!link.is_visible,
+        }),
+      ),
+    );
+  };
+
+  const handleCategoryDragStart = (categoryId) => {
+    setDraggingCategoryId(categoryId);
+  };
+
+  const handleCategoryDragOver = (e, categoryId) => {
+    if (!isSiteEditOpen || draggingCategoryId == null) return;
+
+    e.preventDefault();
+    if (dragOverCategoryId !== categoryId) {
+      setDragOverCategoryId(categoryId);
+    }
+  };
+
+  const handleCategoryDrop = async (categoryId) => {
+    if (!isSiteEditOpen || draggingCategoryId == null) return;
+
+    const reorderedCategories = reorderItems(categories, draggingCategoryId, categoryId);
+    const nextCategories = applySortOrder(reorderedCategories);
+
+    setDraggingCategoryId(null);
+    setDragOverCategoryId(null);
+
+    if (reorderedCategories === categories) return;
+
+    setCategories(nextCategories);
+
+    try {
+      await persistCategoryOrder(nextCategories);
+      await loadData(true);
+    } catch (error) {
+      alert(error.message);
+      await loadData(true);
+    }
+  };
+
+  const handleCategoryDragEnd = () => {
+    setDraggingCategoryId(null);
+    setDragOverCategoryId(null);
+  };
+
+  const handleLinkDragStart = (e, categoryId, linkId) => {
+    e.stopPropagation();
+    setDraggingLinkMeta({ categoryId, linkId });
+  };
+
+  const handleLinkDragOver = (e, categoryId, linkId) => {
+    if (
+      !draggingLinkMeta ||
+      draggingLinkMeta.categoryId !== categoryId ||
+      openCategoryEditorId !== categoryId
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragOverLinkId !== linkId) {
+      setDragOverLinkId(linkId);
+    }
+  };
+
+  const handleLinkDrop = async (e, categoryId, linkId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (
+      !draggingLinkMeta ||
+      draggingLinkMeta.categoryId !== categoryId ||
+      openCategoryEditorId !== categoryId
+    ) {
+      return;
+    }
+
+    const nextCategories = categories.map((category) => {
+      if (category.id !== categoryId) return category;
+
+      const reorderedLinks = reorderItems(
+        category.links || [],
+        draggingLinkMeta.linkId,
+        linkId,
+      );
+
+      return {
+        ...category,
+        links: applySortOrder(reorderedLinks),
+      };
+    });
+
+    const targetCategory = nextCategories.find((category) => category.id === categoryId);
+
+    setDraggingLinkMeta(null);
+    setDragOverLinkId(null);
+
+    if (!targetCategory) return;
+
+    setCategories(nextCategories);
+
+    try {
+      await persistLinkOrder(targetCategory.links || []);
+      await loadData(true);
+    } catch (error) {
+      alert(error.message);
+      await loadData(true);
+    }
+  };
+
+  const handleLinkDragEnd = (e) => {
+    e.stopPropagation();
+    setDraggingLinkMeta(null);
+    setDragOverLinkId(null);
+  };
+
   const compactCategories = useMemo(() => categories || [], [categories]);
 
   return (
@@ -217,10 +384,21 @@ export default function Sites() {
           <div className="sites-header-row">
             <div className="sites-header-copy">
               <p className="sites-kicker">Archive</p>
-              <h1 className="sites-title">Sites</h1>
+              <div className="sites-title-row">
+                <h1 className="sites-title">Sites</h1>
+                {isAdmin && (
+                  <button
+                    className="plus-edit-button sites-edit-button"
+                    type="button"
+                    onClick={() => setIsSiteEditOpen((prev) => !prev)}
+                  >
+                    {isSiteEditOpen ? "done" : "edit"}
+                  </button>
+                )}
+              </div>
             </div>
 
-            {isAdmin && (
+            {isAdmin && isSiteEditOpen && (
               <section className="admin-create-category">
                 <form
                   className="mini-inline-form"
@@ -259,10 +437,26 @@ export default function Sites() {
         {!isLoading && !pageError && (
           <main className="sites-sections">
             {compactCategories.map((category) => (
-              <section className="sites-section" key={category.id}>
+              <section
+                className={`sites-section ${
+                  isAdmin && isSiteEditOpen ? "sites-section-draggable" : ""
+                } ${
+                  dragOverCategoryId === category.id ? "is-drag-over" : ""
+                }`}
+                key={category.id}
+                draggable={isAdmin && isSiteEditOpen}
+                onDragStart={() => handleCategoryDragStart(category.id)}
+                onDragOver={(e) => handleCategoryDragOver(e, category.id)}
+                onDrop={() => handleCategoryDrop(category.id)}
+                onDragEnd={handleCategoryDragEnd}
+              >
                 <div className="section-topline">
                   <div className="section-title-row">
                     <h2 className="section-title">{category.name}</h2>
+
+                    {isAdmin && isSiteEditOpen && (
+                      <span className="drag-order-chip">drag</span>
+                    )}
 
                     {isAdmin && (
                       <button
@@ -327,7 +521,24 @@ export default function Sites() {
 
                 <div className="compact-link-list">
                   {category.links?.map((link) => (
-                    <div key={link.id} className="link-block">
+                    <div
+                      key={link.id}
+                      className={`link-block ${
+                        isAdmin && openCategoryEditorId === category.id
+                          ? "link-block-draggable"
+                          : ""
+                      } ${
+                        dragOverLinkId === link.id &&
+                        draggingLinkMeta?.categoryId === category.id
+                          ? "is-drag-over"
+                          : ""
+                      }`}
+                      draggable={isAdmin && openCategoryEditorId === category.id}
+                      onDragStart={(e) => handleLinkDragStart(e, category.id, link.id)}
+                      onDragOver={(e) => handleLinkDragOver(e, category.id, link.id)}
+                      onDrop={(e) => handleLinkDrop(e, category.id, link.id)}
+                      onDragEnd={(e) => handleLinkDragEnd(e)}
+                    >
                       <div className="compact-link-row-wrap">
                         <a
                           className="compact-link-row"
@@ -367,6 +578,10 @@ export default function Sites() {
                           </button>
                         )}
                       </div>
+
+                      {isAdmin && openCategoryEditorId === category.id && (
+                        <div className="drag-link-hint">drag to reorder</div>
+                      )}
 
                       {isAdmin && openLinkEditorId === link.id && (
                         <form

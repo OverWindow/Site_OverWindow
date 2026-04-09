@@ -67,6 +67,19 @@
   letter-spacing: -0.03em;
 }
 
+.sites-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sites-edit-button {
+  width: auto;
+  height: auto;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
 .admin-chip {
   align-self: flex-start;
   padding: 4px 8px;
@@ -164,6 +177,20 @@
 
 .sites-section {
   border-top: 1px solid rgba(17, 17, 17, 0.06);
+}
+
+.sites-section-draggable {
+  cursor: grab;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.sites-section-draggable:active {
+  cursor: grabbing;
+}
+
+.is-drag-over {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .section-topline {
@@ -335,6 +362,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drag-order-chip,
+.drag-link-hint {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 158, 11, 0.88);
+}
+
+.drag-link-hint {
+  padding-top: 2px;
 }
 
 .plus-edit-button {
@@ -360,6 +400,14 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.link-block-draggable {
+  cursor: grab;
+}
+
+.link-block-draggable:active {
+  cursor: grabbing;
 }
 
 .compact-link-row-wrap {

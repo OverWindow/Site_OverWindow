@@ -60,7 +60,7 @@ export default function AppLayout() {
     e.preventDefault();
 
     if (!email.trim() || !password.trim()) {
-      setLoginError("?대찓?쇨낵 鍮꾨?踰덊샇瑜??낅젰?댁＜?몄슂.");
+      setLoginError("이메일/비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -79,11 +79,9 @@ export default function AppLayout() {
         is_admin: true,
       });
 
-      setLoggedIn(true);
-      setIsAdmin(true);
-      closeLogin();
+      window.location.reload();
     } catch (error) {
-      setLoginError(error.message || "濡쒓렇??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+      setLoginError(error.message || "로그인 과정 중 에러가 발생하였습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,12 +94,7 @@ export default function AppLayout() {
       console.error("logout failed:", error);
     } finally {
       clearAuthData();
-      setLoggedIn(false);
-      setIsAdmin(false);
-      setIsLoginOpen(false);
-      setEmail("");
-      setPassword("");
-      setLoginError("");
+      window.location.reload();
     }
   };
 
