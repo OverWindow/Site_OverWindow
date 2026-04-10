@@ -17,8 +17,7 @@ export default function App() {
         <p className="intro">AI & Backend</p>
         <div className="line" />
         <p className="bio">
-          맡겨만 주시면 누구보다 빠르고 정확하게 무엇이든 어떻게든 <b>반드시</b>{" "}
-          완성하는
+          맡겨만 주시면 <b>반드시</b> 완성하는
           <br></br>이 시대의 몇 없는 멋쟁이입니다 :)
         </p>
       </div>
