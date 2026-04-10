@@ -5,13 +5,21 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import User, RefreshToken
-from app.schemas.login import LoginRequest, RefreshRequest, TokenResponse, MessageResponse, MeResponse
+from app.schemas.login import (
+    LoginRequest,
+    RefreshRequest,
+    TokenResponse,
+    MessageResponse,
+    MeResponse,
+    MeUpdateRequest,
+)
 from app.security import (
     verify_password,
     create_access_token,
     create_refresh_token,
     hash_refresh_token,
     get_refresh_token_expiry,
+    hash_password,
 )
 from app.dependencies import get_current_user
 
@@ -146,4 +154,50 @@ def me(current_user: User = Depends(get_current_user)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="관리자만 접근할 수 있습니다.",
         )
+    return current_user
+
+
+@router.patch("/me", response_model=MeResponse)
+def update_me(
+    payload: MeUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if payload.username is not None and payload.username != current_user.username:
+        existing_username = (
+            db.query(User)
+            .filter(User.username == payload.username, User.id != current_user.id)
+            .first()
+        )
+        if existing_username:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="이미 사용 중인 username 입니다.",
+            )
+        current_user.username = payload.username
+
+    if payload.email is not None and str(payload.email) != current_user.email:
+        existing_email = (
+            db.query(User)
+            .filter(User.email == str(payload.email), User.id != current_user.id)
+            .first()
+        )
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="이미 사용 중인 email 입니다.",
+            )
+        current_user.email = str(payload.email)
+
+    if payload.password is not None:
+        try:
+            current_user.password_hash = hash_password(payload.password)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(exc),
+            )
+
+    db.commit()
+    db.refresh(current_user)
     return current_user

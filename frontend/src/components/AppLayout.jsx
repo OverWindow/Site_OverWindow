@@ -127,6 +127,19 @@ export default function AppLayout() {
                   AI Picks
                 </button>
               )}
+              {loggedIn ? (
+                <Link to="/settings" className="top-link">
+                  Settings
+                </Link>
+              ) : (
+                <button
+                  className="top-link top-link-disabled"
+                  onClick={openLogin}
+                  type="button"
+                >
+                  Settings
+                </button>
+              )}
               {!loggedIn && (
                 <button
                   className="top-link top-link-dark"

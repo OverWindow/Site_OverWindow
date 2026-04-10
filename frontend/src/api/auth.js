@@ -54,6 +54,36 @@ export async function fetchMe() {
   return data;
 }
 
+export async function updateMe({ username = null, email = null, password = null }) {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    throw new Error("액세스 토큰이 없습니다.");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "PATCH",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+    }),
+  });
+
+  const data = await parseJsonSafe(response);
+
+  if (!response.ok) {
+    throw new Error(data?.detail || "계정 정보를 수정하지 못했습니다.");
+  }
+
+  return data;
+}
+
 export async function logoutAdmin() {
   const refreshToken = getRefreshToken();
 

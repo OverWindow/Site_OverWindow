@@ -37,7 +37,8 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  width: 500px;
+  max-width: 100%;
+  width: 800px;
 }
 
 .hamburger-button {
