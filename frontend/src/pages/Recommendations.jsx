@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { getDevelopmentRecommendations } from "../api/ai";
+import { createCategory, createLink, getAdminCategories } from "../api/links";
 import "../styles/Recommendations.css";
 
 function parsePrompt(value) {
@@ -15,7 +17,21 @@ function parsePrompt(value) {
   };
 }
 
-function RecommendationSection({ title, items }) {
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-_]/g, "");
+}
+
+function RecommendationSection({
+  title,
+  items,
+  onSave,
+  savingUrl,
+  saveMessage,
+}) {
   if (!items?.length) return null;
 
   return (
@@ -25,22 +41,38 @@ function RecommendationSection({ title, items }) {
       </div>
       <div className="recommendation-grid">
         {items.map((item) => (
-          <a
+          <article
             key={`${title}-${item.title}-${item.url}`}
             className="recommendation-card"
-            href={item.url}
-            target="_blank"
-            rel="noreferrer"
           >
-            <div className="recommendation-card-top">
-              <h3>{item.title}</h3>
-              <span>visit</span>
+            <a
+              className="recommendation-card-link"
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <div className="recommendation-card-top">
+                <h3>{item.title}</h3>
+                <span>visit</span>
+              </div>
+              <p className="recommendation-url">{item.url}</p>
+              <p className="recommendation-description">{item.description}</p>
+            </a>
+
+            <div className="recommendation-card-actions">
+              <button
+                className="recommendation-save"
+                type="button"
+                onClick={() => onSave(item)}
+                disabled={savingUrl === item.url}
+              >
+                {savingUrl === item.url ? "Saving..." : "Add to AI Picks"}
+              </button>
             </div>
-            <p className="recommendation-url">{item.url}</p>
-            <p className="recommendation-description">{item.description}</p>
-          </a>
+          </article>
         ))}
       </div>
+      {saveMessage && <p className="recommendation-save-message">{saveMessage}</p>}
     </section>
   );
 }
@@ -50,6 +82,8 @@ export default function Recommendations() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [savingUrl, setSavingUrl] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const parsedPreview = useMemo(() => parsePrompt(prompt), [prompt]);
 
@@ -66,6 +100,7 @@ export default function Recommendations() {
     try {
       setIsLoading(true);
       setError("");
+      setSaveMessage("");
       const data = await getDevelopmentRecommendations(payload);
       setResult(data);
     } catch (submitError) {
@@ -80,6 +115,52 @@ export default function Recommendations() {
     setError("");
     setResult(null);
     setIsLoading(false);
+    setSavingUrl("");
+    setSaveMessage("");
+  };
+
+  const ensureAIPicksCategory = async () => {
+    const categories = await getAdminCategories();
+    const existing = categories.find(
+      (category) => category.name?.toLowerCase() === "ai picks",
+    );
+
+    if (existing) return existing;
+
+    return createCategory({
+      name: "AI Picks",
+      slug: slugify("AI Picks"),
+      sort_order: categories.length + 1,
+      is_visible: true,
+    });
+  };
+
+  const handleSaveRecommendation = async (item) => {
+    try {
+      setSavingUrl(item.url);
+      setSaveMessage("");
+
+      const category = await ensureAIPicksCategory();
+      const categories = await getAdminCategories();
+      const targetCategory = categories.find((entry) => entry.id === category.id) || category;
+      const currentLinks = targetCategory.links || [];
+
+      await createLink({
+        category_id: category.id,
+        title: item.title,
+        url: item.url,
+        description: item.description || null,
+        icon_name: null,
+        sort_order: currentLinks.length + 1,
+        is_visible: true,
+      });
+
+      setSaveMessage(`Saved "${item.title}" to AI Picks.`);
+    } catch (saveError) {
+      setSaveMessage(saveError.message || "Could not save this site.");
+    } finally {
+      setSavingUrl("");
+    }
   };
 
   return (
@@ -97,15 +178,20 @@ export default function Recommendations() {
             </p>
           </div>
 
-          {result && (
-            <button
-              className="recommendations-reset"
-              type="button"
-              onClick={handleReset}
-            >
-              Refresh
-            </button>
-          )}
+          <div className="recommendations-header-actions">
+            <Link to="/recommendations/history" className="recommendations-history-link">
+              View history
+            </Link>
+            {result && (
+              <button
+                className="recommendations-reset"
+                type="button"
+                onClick={handleReset}
+              >
+                Refresh
+              </button>
+            )}
+          </div>
         </div>
 
         {!result && (
@@ -159,11 +245,28 @@ export default function Recommendations() {
 
         {result && (
           <section className="recommendations-results">
+            <section className="recommendation-note">
+              <p className="recommendation-label">Quick Save</p>
+              <p>
+                Use the add button on any recommendation card to send it
+                straight into your Sites list under the AI Picks category.
+              </p>
+            </section>
+
             <RecommendationSection
               title="Recommended Websites"
               items={result.websites}
+              onSave={handleSaveRecommendation}
+              savingUrl={savingUrl}
+              saveMessage={saveMessage}
             />
-            <RecommendationSection title="Reference Apps" items={result.apps} />
+            <RecommendationSection
+              title="Reference Apps"
+              items={result.apps}
+              onSave={handleSaveRecommendation}
+              savingUrl={savingUrl}
+              saveMessage=""
+            />
 
             <section className="recommendation-analysis">
               <p className="recommendation-label">Analysis</p>

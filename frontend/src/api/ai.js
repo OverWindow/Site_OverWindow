@@ -35,3 +35,27 @@ export async function getDevelopmentRecommendations(payload) {
 
   return data;
 }
+
+export async function getRecommendationHistory() {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    throw new Error("Login required.");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/recommendations`, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const data = await parseJsonSafe(response);
+
+  if (!response.ok) {
+    throw new Error(data?.detail || "Failed to load recommendation history.");
+  }
+
+  return Array.isArray(data) ? data : [];
+}

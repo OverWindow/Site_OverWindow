@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { fetchMe, loginAdmin, logoutAdmin } from "../api/auth";
+import {
+  fetchMe,
+  loginAdmin,
+  logoutAdmin,
+  refreshAuthToken,
+} from "../api/auth";
 import {
   clearAuthData,
   getAccessToken,
@@ -41,6 +46,7 @@ export default function AppLayout() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshingSession, setIsRefreshingSession] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   useEffect(() => {
@@ -154,6 +160,30 @@ export default function AppLayout() {
     }
   };
 
+  const handleRefreshSession = async () => {
+    try {
+      setIsRefreshingSession(true);
+      const data = await refreshAuthToken();
+
+      setAuthData({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        is_admin: true,
+      });
+
+      const nextExpirationMs = getTokenExpirationMs(data.access_token);
+      if (nextExpirationMs) {
+        setSessionRemainingMs(Math.max(0, nextExpirationMs - Date.now()));
+      }
+    } catch (error) {
+      console.error("refresh failed:", error);
+      clearAuthData();
+      window.location.reload();
+    } finally {
+      setIsRefreshingSession(false);
+    }
+  };
+
   if (isBootstrapping) {
     return null;
   }
@@ -215,12 +245,24 @@ export default function AppLayout() {
                 </button>
               )}
               {loggedIn && sessionRemainingMs != null && (
-                <div
-                  className="session-timer"
-                  title="로그인 유효 시간"
-                  aria-label={`로그인 유효 시간 ${formatRemainingTime(sessionRemainingMs)}`}
-                >
-                  {formatRemainingTime(sessionRemainingMs)}
+                <div className="session-tools">
+                  <div
+                    className="session-timer"
+                    title="로그인 유효 시간"
+                    aria-label={`로그인 유효 시간 ${formatRemainingTime(sessionRemainingMs)}`}
+                  >
+                    {formatRemainingTime(sessionRemainingMs)}
+                  </div>
+                  <button
+                    className="session-refresh"
+                    type="button"
+                    onClick={handleRefreshSession}
+                    disabled={isRefreshingSession}
+                    title="세션 시간 연장"
+                    aria-label="세션 시간 연장"
+                  >
+                    {isRefreshingSession ? "..." : "↻"}
+                  </button>
                 </div>
               )}
               {isAdmin && <div className="admin-indicator">admin</div>}

@@ -109,3 +109,30 @@ export async function logoutAdmin() {
 
   return true;
 }
+
+export async function refreshAuthToken() {
+  const refreshToken = getRefreshToken();
+
+  if (!refreshToken) {
+    throw new Error("리프레시 토큰이 없습니다.");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      refresh_token: refreshToken,
+    }),
+  });
+
+  const data = await parseJsonSafe(response);
+
+  if (!response.ok) {
+    throw new Error(data?.detail || "토큰 갱신에 실패했습니다.");
+  }
+
+  return data;
+}

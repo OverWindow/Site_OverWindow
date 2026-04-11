@@ -8,6 +8,7 @@ from sqlalchemy import (
     Text,
     JSON,
     Integer,
+    Enum,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -30,6 +31,11 @@ class User(Base):
 
     refresh_tokens = relationship(
         "RefreshToken",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    recommendations = relationship(
+        "Recommendation",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -122,4 +128,50 @@ class RefreshToken(Base):
     ip_address = Column(String(45), nullable=True)
 
     user = relationship("User", back_populates="refresh_tokens")
-    
+
+
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    user_id = Column(
+        BigInteger,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    topic = Column(String(255), nullable=False)
+    features = Column(Text, nullable=False)
+    additional_context = Column(Text, nullable=True)
+    analysis = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    user = relationship("User", back_populates="recommendations")
+    items = relationship(
+        "RecommendedItem",
+        back_populates="recommendation",
+        cascade="all, delete-orphan",
+    )
+
+
+class RecommendedItem(Base):
+    __tablename__ = "recommended_items"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    recommendation_id = Column(
+        BigInteger,
+        ForeignKey("recommendations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    type = Column(
+        Enum("website", "app", name="recommended_item_type"),
+        nullable=False,
+    )
+    title = Column(String(255), nullable=False)
+    url = Column(String(2048), nullable=False)
+    description = Column(Text, nullable=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    recommendation = relationship("Recommendation", back_populates="items")

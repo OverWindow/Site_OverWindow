@@ -142,6 +142,35 @@
   font-variant-numeric: tabular-nums;
 }
 
+.session-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-refresh {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.08);
+  color: #111111;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+}
+
+.session-refresh:hover {
+  background: rgba(245, 158, 11, 0.18);
+  transform: rotate(18deg);
+}
+
+.session-refresh:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
 .profile-button {
   border: 3px solid var(--point-color);
   background: none;
@@ -194,7 +223,7 @@
   .top-link,
   .profile-button,
   .admin-indicator,
-  .session-timer {
+  .session-tools {
     width: 100%;
     margin-left: 0;
     justify-content: center;
@@ -220,5 +249,11 @@
   .session-timer {
     border-radius: 14px;
     padding: 10px 12px;
+  }
+
+  .session-refresh {
+    width: 100%;
+    border-radius: 14px;
+    height: 40px;
   }
 }

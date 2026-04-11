@@ -5,7 +5,9 @@ from typing import Any, Dict
 import requests
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 
+from app.models import Recommendation, RecommendedItem, User
 from app.schemas.ai import DevelopmentRecommendationRequest, DevelopmentRecommendationResponse
 
 
@@ -146,3 +148,45 @@ def get_development_recommendations(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"AI 추천 생성 중 오류가 발생했습니다: {exc}",
         )
+
+
+def save_development_recommendations(
+    payload: DevelopmentRecommendationRequest,
+    result: DevelopmentRecommendationResponse,
+    current_user: User,
+    db: Session,
+) -> Recommendation:
+    recommendation = Recommendation(
+        user_id=current_user.id,
+        topic=payload.topic,
+        features=payload.features,
+        additional_context=payload.additional_context,
+        analysis=result.analysis,
+    )
+
+    for index, item in enumerate(result.websites):
+        recommendation.items.append(
+            RecommendedItem(
+                type="website",
+                title=item.title,
+                url=str(item.url),
+                description=item.description,
+                sort_order=index,
+            )
+        )
+
+    for index, item in enumerate(result.apps, start=len(result.websites)):
+        recommendation.items.append(
+            RecommendedItem(
+                type="app",
+                title=item.title,
+                url=str(item.url),
+                description=item.description,
+                sort_order=index,
+            )
+        )
+
+    db.add(recommendation)
+    db.commit()
+    db.refresh(recommendation)
+    return recommendation

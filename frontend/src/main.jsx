@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import Recommendations from "./pages/Recommendations.jsx";
+import RecommendationsHistory from "./pages/RecommendationsHistory.jsx";
 import Settings from "./pages/Settings.jsx";
 import Sites from "./pages/Sites.jsx";
 import "./index.css";
@@ -16,6 +17,10 @@ createRoot(document.getElementById("root")).render(
           <Route path="/" element={<App />} />
           <Route path="/sites" element={<Sites />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route
+            path="/recommendations/history"
+            element={<RecommendationsHistory />}
+          />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
