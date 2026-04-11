@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   fetchMe,
   loginAdmin,
@@ -38,6 +38,8 @@ function formatRemainingTime(ms) {
 }
 
 export default function AppLayout() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(hasAuthTokens());
   const [isAdmin, setIsAdmin] = useState(getIsAdmin());
@@ -105,6 +107,16 @@ export default function AppLayout() {
 
     return () => window.clearInterval(intervalId);
   }, [loggedIn]);
+
+  useEffect(() => {
+    const blockedPaths = ["/recommendations", "/recommendations/history", "/settings"];
+
+    if (!loggedIn && blockedPaths.includes(location.pathname)) {
+      setLoginError("");
+      setIsLoginOpen(true);
+      navigate("/", { replace: true });
+    }
+  }, [loggedIn, location.pathname, navigate]);
 
   const openLogin = () => {
     setLoginError("");
