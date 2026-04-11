@@ -3,16 +3,40 @@ import { Link, Outlet } from "react-router-dom";
 import { fetchMe, loginAdmin, logoutAdmin } from "../api/auth";
 import {
   clearAuthData,
+  getAccessToken,
   getIsAdmin,
   hasAuthTokens,
   setAuthData,
 } from "../api/token";
 import HeaderBar from "./HeaderBar";
 
+function getTokenExpirationMs(token) {
+  if (!token) return null;
+
+  try {
+    const [, payload] = token.split(".");
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(window.atob(normalized));
+    return decoded?.exp ? decoded.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatRemainingTime(ms) {
+  const safeMs = Math.max(0, ms);
+  const totalSeconds = Math.floor(safeMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default function AppLayout() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(hasAuthTokens());
   const [isAdmin, setIsAdmin] = useState(getIsAdmin());
+  const [sessionRemainingMs, setSessionRemainingMs] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -43,6 +67,38 @@ export default function AppLayout() {
 
     bootstrapAuth();
   }, []);
+
+  useEffect(() => {
+    if (!loggedIn) {
+      setSessionRemainingMs(null);
+      return undefined;
+    }
+
+    const token = getAccessToken();
+    const expirationMs = getTokenExpirationMs(token);
+
+    if (!expirationMs) {
+      setSessionRemainingMs(null);
+      return undefined;
+    }
+
+    const updateRemaining = () => {
+      const remaining = expirationMs - Date.now();
+
+      if (remaining <= 0) {
+        clearAuthData();
+        window.location.reload();
+        return;
+      }
+
+      setSessionRemainingMs(remaining);
+    };
+
+    updateRemaining();
+    const intervalId = window.setInterval(updateRemaining, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loggedIn]);
 
   const openLogin = () => {
     setLoginError("");
@@ -158,6 +214,15 @@ export default function AppLayout() {
                   Logout
                 </button>
               )}
+              {loggedIn && sessionRemainingMs != null && (
+                <div
+                  className="session-timer"
+                  title="로그인 유효 시간"
+                  aria-label={`로그인 유효 시간 ${formatRemainingTime(sessionRemainingMs)}`}
+                >
+                  {formatRemainingTime(sessionRemainingMs)}
+                </div>
+              )}
               {isAdmin && <div className="admin-indicator">admin</div>}
             </>
           }
@@ -170,12 +235,20 @@ export default function AppLayout() {
         <div className="login-overlay" onClick={closeLogin}>
           <div className="login-modal" onClick={(e) => e.stopPropagation()}>
             <form className="login-form" onSubmit={handleLogin}>
+              <p className="login-label">Admin Access</p>
+              <h2 className="login-title">Login</h2>
+              <p className="login-subtext">
+                로그인 후 Sites, AI Picks, Settings를 사용할 수 있습니다.
+                브라우저가 저장 여부를 물으면 비밀번호를 저장할 수 있어요.
+              </p>
+
               <input
                 type="email"
                 placeholder="Email"
                 className="login-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="username"
                 disabled={isSubmitting}
               />
 
@@ -185,6 +258,7 @@ export default function AppLayout() {
                 className="login-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 disabled={isSubmitting}
               />
 

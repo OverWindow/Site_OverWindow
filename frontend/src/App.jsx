@@ -9,7 +9,14 @@ export default function App() {
   return (
     <main className="hero">
       <div className="portrait-wrap">
-        <img src={profileImage} alt="profile" className="portrait" />
+        <img
+          src={profileImage}
+          alt="profile"
+          className="portrait"
+          loading="eager"
+          fetchPriority="high"
+          decoding="sync"
+        />
       </div>
       <div className="description-wrap">
         <p className="eyebrow">Developer</p>

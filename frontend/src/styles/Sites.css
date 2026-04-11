@@ -428,7 +428,7 @@
   padding-top: 4px;
 }
 
-/* @media (max-width: 1180px) {
+@media (max-width: 1180px) {
   .sites-shell {
     width: min(1180px, calc(100% - 20px));
   }
@@ -473,4 +473,4 @@
     column-count: 1;
     column-gap: 0;
   }
-} */
+}

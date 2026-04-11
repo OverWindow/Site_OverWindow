@@ -131,6 +131,17 @@
   color: var(--point-color);
 }
 
+.session-timer {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.1);
+  color: #9a6700;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
 .profile-button {
   border: 3px solid var(--point-color);
   background: none;
@@ -182,7 +193,8 @@
 
   .top-link,
   .profile-button,
-  .admin-indicator {
+  .admin-indicator,
+  .session-timer {
     width: 100%;
     margin-left: 0;
     justify-content: center;
@@ -203,5 +215,10 @@
     padding: 8px 12px;
     border-radius: 14px;
     background: rgba(245, 158, 11, 0.1);
+  }
+
+  .session-timer {
+    border-radius: 14px;
+    padding: 10px 12px;
   }
 }
