@@ -4,6 +4,10 @@ from urllib.parse import urlparse, urljoin
 
 
 TIMEOUT = 5
+MAX_HTML_BYTES = 512 * 1024
+HEADERS = {
+    "User-Agent": "overwindow-backend/1.0",
+}
 
 
 def normalize_url(url: str) -> str:
@@ -27,9 +31,14 @@ def try_default_favicon(url: str):
     favicon_url = get_default_favicon(url)
 
     try:
-        r = requests.get(favicon_url, timeout=TIMEOUT)
-        if is_valid_image(r):
-            return favicon_url
+        with requests.get(
+            favicon_url,
+            headers=HEADERS,
+            timeout=TIMEOUT,
+            stream=True,
+        ) as response:
+            if is_valid_image(response):
+                return favicon_url
     except Exception:
         pass
 
@@ -38,8 +47,27 @@ def try_default_favicon(url: str):
 
 def try_html_favicon(url: str):
     try:
-        r = requests.get(url, timeout=TIMEOUT)
-        soup = BeautifulSoup(r.text, "html.parser")
+        with requests.get(url, headers=HEADERS, timeout=TIMEOUT, stream=True) as response:
+            response.raise_for_status()
+
+            content_type = response.headers.get("content-type", "")
+            if content_type and "html" not in content_type.lower():
+                return None
+
+            chunks = []
+            total = 0
+            for chunk in response.iter_content(chunk_size=16384):
+                if not chunk:
+                    continue
+                total += len(chunk)
+                if total > MAX_HTML_BYTES:
+                    chunks.append(chunk[: MAX_HTML_BYTES - (total - len(chunk))])
+                    break
+                chunks.append(chunk)
+
+            html = b"".join(chunks).decode(response.encoding or "utf-8", errors="ignore")
+
+        soup = BeautifulSoup(html, "html.parser")
 
         for link in soup.find_all("link"):
             rel = link.get("rel", [])

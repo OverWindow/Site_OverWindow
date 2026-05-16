@@ -16,8 +16,20 @@ from app.dependencies import require_admin
 from app.utils.favicon import extract_favicon_url, normalize_url
 
 
-
 router = APIRouter(prefix="/links", tags=["links"])
+
+
+def _category_with_links(category: LinkCategory, links: List[Link]) -> LinkCategoryWithLinksResponse:
+    return LinkCategoryWithLinksResponse.model_validate(
+        {
+            "id": category.id,
+            "name": category.name,
+            "slug": category.slug,
+            "sort_order": category.sort_order,
+            "is_visible": category.is_visible,
+            "links": links,
+        }
+    )
 
 
 # -----------------------------
@@ -34,17 +46,16 @@ def get_public_categories_with_links(db: Session = Depends(get_db)):
         .all()
     )
 
-    result = []
-    for category in categories:
-        visible_links = sorted(
-            [link for link in category.links if link.is_visible],
-            key=lambda x: (x.sort_order, x.id),
+    return [
+        _category_with_links(
+            category,
+            sorted(
+                [link for link in category.links if link.is_visible],
+                key=lambda x: (x.sort_order, x.id),
+            ),
         )
-
-        category.links = visible_links
-        result.append(category)
-
-    return result
+        for category in categories
+    ]
 
 
 @router.get("/public/{slug}", response_model=LinkCategoryWithLinksResponse)
@@ -65,11 +76,13 @@ def get_public_category_by_slug(slug: str, db: Session = Depends(get_db)):
             detail="카테고리를 찾을 수 없습니다.",
         )
 
-    category.links = sorted(
-        [link for link in category.links if link.is_visible],
-        key=lambda x: (x.sort_order, x.id),
+    return _category_with_links(
+        category,
+        sorted(
+            [link for link in category.links if link.is_visible],
+            key=lambda x: (x.sort_order, x.id),
+        ),
     )
-    return category
 
 
 # -----------------------------
@@ -88,10 +101,13 @@ def admin_get_categories(
         .all()
     )
 
-    for category in categories:
-        category.links = sorted(category.links, key=lambda x: (x.sort_order, x.id))
-
-    return categories
+    return [
+        _category_with_links(
+            category,
+            sorted(category.links, key=lambda x: (x.sort_order, x.id)),
+        )
+        for category in categories
+    ]
 
 
 @router.post(
