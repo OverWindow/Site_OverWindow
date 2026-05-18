@@ -37,3 +37,13 @@ Docker Compose로 전체 스택을 띄울 때:
 ```powershell
 docker compose up --build
 ```
+
+## Backend CORS
+
+Railway 백엔드 환경변수에 프론트 도메인을 쉼표로 넣어두세요.
+
+```env
+CORS_ORIGINS=https://overwindow.com,https://www.overwindow.com
+```
+
+`www`가 붙은 도메인과 안 붙은 도메인은 브라우저에서 서로 다른 origin으로 취급됩니다.
