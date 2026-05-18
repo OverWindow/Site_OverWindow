@@ -1,5 +1,6 @@
 import "./App.css";
-import profileImage from "/profile.jpg";
+import profileImage320 from "./assets/profile-320.jpg";
+import profileImage680 from "./assets/profile-680.jpg";
 
 export default function App() {
   console.log("MODE =", import.meta.env.MODE);
@@ -10,12 +11,16 @@ export default function App() {
     <main className="hero">
       <div className="portrait-wrap">
         <img
-          src={profileImage}
-          alt="profile"
+          src={profileImage680}
+          srcSet={`${profileImage320} 320w, ${profileImage680} 680w`}
+          sizes="(max-width: 768px) 160px, 340px"
+          alt="김현진 프로필 사진"
           className="portrait"
+          width="340"
+          height="340"
           loading="eager"
           fetchPriority="high"
-          decoding="sync"
+          decoding="async"
         />
       </div>
       <div className="description-wrap">
