@@ -1,7 +1,7 @@
 .projects-page {
   min-height: calc(100vh - 80px);
   padding: 52px 0 72px;
-  color: #111111;
+  color: var(--app-text);
 }
 
 .projects-header {
@@ -17,7 +17,7 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.42);
+  color: var(--app-text-soft);
 }
 
 .projects-header h1 {
@@ -26,6 +26,7 @@
   line-height: 1;
   font-weight: 600;
   letter-spacing: -0.03em;
+  color: var(--app-text-strong);
 }
 
 .project-new-button,
@@ -43,13 +44,13 @@
 
 .project-new-button,
 .project-save-button {
-  background: #111111;
-  color: white;
+  background: var(--app-text-strong);
+  color: var(--app-bg);
 }
 
 .project-edit-button {
   background: var(--point-soft);
-  color: #9a6700;
+  color: var(--point-color);
 }
 
 .project-danger-button {
@@ -108,11 +109,11 @@
   left: -230px;
   width: 460px;
   height: 460px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-left: none;
   border-radius: 0 460px 460px 0;
   background:
-    radial-gradient(circle at left center, #f8f8f6 0 52%, transparent 52%),
+    radial-gradient(circle at left center, var(--app-bg) 0 52%, transparent 52%),
     linear-gradient(90deg, rgba(245, 158, 11, 0.06), transparent 68%);
 }
 
@@ -120,15 +121,15 @@
   position: absolute;
   width: 132px;
   min-height: 40px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #111111;
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  color: var(--app-text-strong);
   padding: 8px 12px;
   text-align: left;
   cursor: pointer;
   transform: translate(-50%, -50%);
-  box-shadow: 0 12px 34px rgba(17, 17, 17, 0.05);
+  box-shadow: 0 12px 34px var(--app-shadow);
   transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
@@ -150,7 +151,7 @@
 .projects-stack {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 200px;
 }
 
 .project-card {
@@ -158,8 +159,8 @@
   grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
   gap: 28px;
   align-items: stretch;
-  padding: 24px 0;
-  border-top: 1px solid rgba(17, 17, 17, 0.08);
+  padding: 40px 0;
+  border-top: 1px solid var(--app-border);
   scroll-margin: 120px;
   content-visibility: auto;
   contain-intrinsic-size: 420px;
@@ -169,7 +170,8 @@
   min-height: 240px;
   border-radius: 8px;
   overflow: hidden;
-  background: #eeeeea;
+  background: var(--app-surface-soft);
+  box-shadow: 0 14px 34px var(--app-shadow);
 }
 
 .project-card-media img,
@@ -190,7 +192,7 @@
   place-items: center;
   font-size: 64px;
   font-weight: 700;
-  color: rgba(17, 17, 17, 0.16);
+  color: var(--app-text-soft);
 }
 
 .project-card-body {
@@ -212,12 +214,13 @@
   font-size: 28px;
   line-height: 1.08;
   letter-spacing: -0.03em;
+  color: var(--app-text-strong);
 }
 
 .project-subtitle {
   margin: 12px 0 0;
   font-size: 16px;
-  color: rgba(17, 17, 17, 0.68);
+  color: var(--app-text-muted);
 }
 
 .project-description {
@@ -225,7 +228,7 @@
   max-width: 720px;
   font-size: 14px;
   line-height: 1.85;
-  color: rgba(17, 17, 17, 0.62);
+  color: var(--app-text-muted);
 }
 
 .project-tech-list {
@@ -237,11 +240,11 @@
 
 .project-tech-list span {
   border-radius: 999px;
-  background: rgba(17, 17, 17, 0.05);
+  background: var(--app-surface-soft);
   padding: 7px 10px;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(17, 17, 17, 0.58);
+  color: var(--app-text-muted);
 }
 
 .project-meta-row,
@@ -251,11 +254,11 @@
   gap: 12px;
   margin-top: 18px;
   font-size: 12px;
-  color: rgba(17, 17, 17, 0.46);
+  color: var(--app-text-soft);
 }
 
 .project-link-row a {
-  color: #111111;
+  color: var(--app-text-strong);
   font-weight: 700;
   text-decoration-color: rgba(245, 158, 11, 0.55);
   text-underline-offset: 4px;
@@ -269,7 +272,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(17, 17, 17, 0.22);
+  background: rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(7px);
 }
 
@@ -278,8 +281,8 @@
   max-height: min(860px, calc(100vh - 48px));
   overflow: auto;
   border-radius: 8px;
-  background: #fbfbf8;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: var(--app-modal-bg);
+  border: 1px solid var(--app-border);
   box-shadow: 0 28px 80px rgba(17, 17, 17, 0.16);
   padding: 24px;
 }
@@ -295,6 +298,7 @@
   margin: 0;
   font-size: 24px;
   letter-spacing: -0.02em;
+  color: var(--app-text-strong);
 }
 
 .project-modal-close {
@@ -302,8 +306,8 @@
   height: 32px;
   border: none;
   border-radius: 999px;
-  background: rgba(17, 17, 17, 0.06);
-  color: rgba(17, 17, 17, 0.54);
+  background: var(--app-surface-soft);
+  color: var(--app-text-muted);
   cursor: pointer;
 }
 
@@ -337,7 +341,7 @@
 .project-check span {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(17, 17, 17, 0.52);
+  color: var(--app-text-muted);
 }
 
 .project-form input,
@@ -346,9 +350,10 @@
 .project-image-row input {
   width: 100%;
   min-width: 0;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
-  background: white;
+  background: var(--app-surface);
+  color: var(--app-text);
   padding: 10px 11px;
   font: inherit;
   font-size: 13px;
@@ -385,7 +390,7 @@
 .project-image-editor {
   margin-top: 26px;
   padding-top: 20px;
-  border-top: 1px solid rgba(17, 17, 17, 0.08);
+  border-top: 1px solid var(--app-border);
 }
 
 .project-image-upload {
@@ -407,9 +412,9 @@
   align-items: center;
   gap: 10px;
   padding: 10px;
-  border: 1px solid rgba(17, 17, 17, 0.06);
+  border: 1px solid var(--app-border-soft);
   border-radius: 8px;
-  background: rgba(17, 17, 17, 0.02);
+  background: var(--app-surface-soft);
 }
 
 .project-image-row img {
@@ -417,7 +422,7 @@
   height: 62px;
   border-radius: 6px;
   object-fit: cover;
-  background: #eeeeea;
+  background: var(--app-surface-soft);
 }
 
 @media (max-width: 980px) {

@@ -4,7 +4,43 @@
   --point-soft: #FEF3C7;
 }
 
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #f8f8f6;
+  --app-bg: #f8f8f6;
+  --app-surface: #ffffff;
+  --app-surface-soft: rgba(17, 17, 17, 0.03);
+  --app-text: #111111;
+  --app-text-strong: #111111;
+  --app-text-muted: rgba(17, 17, 17, 0.58);
+  --app-text-soft: rgba(17, 17, 17, 0.42);
+  --app-border: rgba(17, 17, 17, 0.08);
+  --app-border-soft: rgba(17, 17, 17, 0.06);
+  --app-shadow: rgba(17, 17, 17, 0.08);
+  --app-modal-bg: rgba(255, 255, 255, 0.94);
+  color-scheme: light;
+}
 
+[data-theme="dark"] {
+  --text: #8E8E93;
+  --text-h: #FFFFFF;
+  --bg: #1C1C1E;
+  --point-color: #0A84FF;
+  --point-soft: rgba(10, 132, 255, 0.16);
+  --app-bg: #1C1C1E;
+  --app-surface: #2C2C2E;
+  --app-surface-soft: rgba(255, 255, 255, 0.06);
+  --app-text: #FFFFFF;
+  --app-text-strong: #FFFFFF;
+  --app-text-muted: #8E8E93;
+  --app-text-soft: #8E8E93;
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border-soft: rgba(255, 255, 255, 0.07);
+  --app-shadow: rgba(0, 0, 0, 0.32);
+  --app-modal-bg: rgba(44, 44, 46, 0.94);
+  color-scheme: dark;
+}
 
 html,
 body,
@@ -16,10 +52,11 @@ body,
 body {
   font-family:
     Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f8f8f6;
-  color: #111111;
+  background: var(--app-bg);
+  color: var(--app-text);
   display: flex;
   justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 button {
@@ -32,7 +69,7 @@ button {
 }
 
 .minimal-app {
-  background: #f8f8f6;
+  background: var(--app-bg);
 }
 
 .shell {
@@ -82,7 +119,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8b8b8b;
+  color: var(--app-text-soft);
 }
 
 .name {
@@ -91,14 +128,14 @@ button {
   line-height: 0.95;
   letter-spacing: -0.06em;
   font-weight: 700;
-  color: #111111;
+  color: var(--app-text-strong);
 }
 
 .intro {
   margin: 22px 0 0;
   font-size: 22px;
   line-height: 1.6;
-  color: #222222;
+  color: var(--app-text);
   font-weight: 400;
 }
 
@@ -115,7 +152,7 @@ button {
   margin: 0;
   font-size: 16px;
   line-height: 1.95;
-  color: #545454;
+  color: var(--app-text-muted);
 }
 
 
@@ -125,7 +162,7 @@ button {
 .login-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.18);
+  background: rgba(15, 23, 42, 0.26);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -137,8 +174,8 @@ button {
 .login-modal {
   width: 100%;
   max-width: 380px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--app-modal-bg);
+  border: 1px solid var(--app-border);
   border-radius: 24px;
   padding: 32px 28px 28px;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
@@ -154,11 +191,11 @@ button {
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
-  color: rgba(15, 23, 42, 0.5);
+  color: var(--app-text-muted);
 }
 
 .login-close:hover {
-  color: rgba(15, 23, 42, 0.9);
+  color: var(--app-text-strong);
 }
 
 .login-label {
@@ -166,7 +203,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.45);
+  color: var(--app-text-soft);
 }
 
 .login-title {
@@ -174,14 +211,14 @@ button {
   font-size: 32px;
   font-weight: 600;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: var(--app-text-strong);
 }
 
 .login-subtext {
   margin: 10px 0 24px;
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(15, 23, 42, 0.58);
+  color: var(--app-text-muted);
 }
 
 .login-form {
@@ -192,19 +229,19 @@ button {
 
 .login-input {
   width: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
   border-radius: 14px;
   padding: 14px 16px;
   font-size: 14px;
   outline: none;
-  color: #0f172a;
+  color: var(--app-text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
 .login-input::placeholder {
-  color: rgba(15, 23, 42, 0.35);
+  color: var(--app-text-soft);
 }
 
 .login-input:focus {
@@ -215,7 +252,7 @@ button {
 .login-submit {
   margin-top: 8px;
   border: none;
-  background: #0f172a;
+  background: var(--app-text-strong);
   color: white;
   border-radius: 14px;
   padding: 14px 16px;
@@ -249,7 +286,7 @@ button {
 .profile-button {
   border: 3px solid var(--point-color);
   background: none;
-  color: #0f172a;
+  color: var(--app-text-strong);
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 13px;

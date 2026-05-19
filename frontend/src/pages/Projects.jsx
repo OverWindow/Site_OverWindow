@@ -109,7 +109,10 @@ function buildProjectPayload(draft) {
 
 function getOrbitStyle(index, total) {
   const safeTotal = Math.max(total, 1);
-  const angle = safeTotal === 1 ? 0 : -74 + (148 * index) / (safeTotal - 1);
+  const angleStep = 28;
+  const maxSpread = 148;
+  const spread = Math.min(maxSpread, angleStep * Math.max(safeTotal - 1, 0));
+  const angle = safeTotal === 1 ? 0 : -spread / 2 + (spread * index) / (safeTotal - 1);
   const radians = (angle * Math.PI) / 180;
   const radiusX = 118;
   const radiusY = 218;

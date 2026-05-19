@@ -1,7 +1,7 @@
 .sites-page {
   min-height: 100vh;
-  background: #f8f8f6;
-  color: #111111;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 .sites-back-wrap,
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(17, 17, 17, 0.58);
+  color: var(--app-text-muted);
   text-decoration: none;
   transition: color 0.18s ease;
 }
@@ -56,7 +56,7 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.38);
+  color: var(--app-text-soft);
 }
 
 .sites-title {
@@ -65,6 +65,7 @@
   line-height: 1.05;
   font-weight: 500;
   letter-spacing: -0.03em;
+  color: var(--app-text-strong);
 }
 
 .sites-title-row {
@@ -83,10 +84,10 @@
 .sites-refresh-button {
   min-width: 58px;
   height: 22px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: white;
-  color: rgba(17, 17, 17, 0.54);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   padding: 0 9px;
   font-size: 11px;
   line-height: 1;
@@ -130,9 +131,10 @@
 
 .mini-input {
   height: 32px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
-  background: white;
+  background: var(--app-surface);
+  color: var(--app-text);
   padding: 0 10px;
   font-size: 12px;
   outline: none;
@@ -156,8 +158,8 @@
   height: 32px;
   border: none;
   border-radius: 10px;
-  background: #151515;
-  color: white;
+  background: var(--app-text-strong);
+  color: var(--app-bg);
   padding: 0 12px;
   font-size: 12px;
   cursor: pointer;
@@ -202,7 +204,7 @@
   display: inline-block;
   width: 100%;
   margin: 0 0 44px;
-  border-top: 1px solid rgba(17, 17, 17, 0.06);
+  border-top: 1px solid var(--app-border-soft);
   break-inside: avoid;
   vertical-align: top;
 }
@@ -230,7 +232,7 @@
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: rgba(17, 17, 17, 0.92);
+  color: var(--app-text-strong);
 }
 
 .category-admin-row {
@@ -248,9 +250,9 @@
   gap: 8px;
   margin-top: 8px;
   padding: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.06);
+  border: 1px solid var(--app-border-soft);
   border-radius: 14px;
-  background: rgba(17, 17, 17, 0.02);
+  background: var(--app-surface-soft);
   box-shadow: 0 8px 24px rgba(17, 17, 17, 0.04);
   animation: softReveal 180ms ease-out;
   transform-origin: top;
@@ -284,9 +286,10 @@
 .category-title-input,
 .category-slug-input {
   height: 30px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 9px;
-  background: white;
+  background: var(--app-surface);
+  color: var(--app-text);
   padding: 0 9px;
   font-size: 12px;
   outline: none;
@@ -299,9 +302,10 @@
 .link-edit-url,
 .link-edit-desc {
   height: 34px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
-  background: white;
+  background: var(--app-surface);
+  color: var(--app-text);
   padding: 0 10px;
   font-size: 13px;
   outline: none;
@@ -312,7 +316,7 @@
 }
 
 .category-slug-input {
-  color: rgba(17, 17, 17, 0.54);
+  color: var(--app-text-muted);
 }
 
 .compact-link-list {
@@ -328,7 +332,7 @@
   align-items: center;
   text-decoration: none;
   padding: 7px 0;
-  border-bottom: 1px solid rgba(17, 17, 17, 0.04);
+  border-bottom: 1px solid var(--app-border-soft);
   transition: background-color 0.18s ease;
 }
 
@@ -351,7 +355,7 @@
 
 .compact-link-title {
   font-size: 12px;
-  color: #111111;
+  color: var(--app-text-strong);
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -359,7 +363,7 @@
 
 .compact-link-meta {
   font-size: 11px;
-  color: rgba(17, 17, 17, 0.46);
+  color: var(--app-text-soft);
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -370,7 +374,7 @@
   border: none;
   background: transparent;
   font-size: 11px;
-  color: rgba(17, 17, 17, 0.52);
+  color: var(--app-text-muted);
   cursor: pointer;
   border-radius: 8px;
   transition: color 0.18s ease, background-color 0.18s ease;
@@ -410,7 +414,7 @@
   height: 18px;
   border: none;
   background: transparent;
-  color: rgba(17, 17, 17, 0.4);
+  color: var(--app-text-soft);
   font-size: 10px;
   line-height: 1;
   padding: 0;

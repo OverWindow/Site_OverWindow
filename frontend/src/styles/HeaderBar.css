@@ -38,7 +38,7 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: 100%;
-  width: 800px;
+  width: 1300px;
 }
 
 .hamburger-button {
@@ -48,14 +48,14 @@
   height: 42px;
   border: none;
   border-radius: 14px;
-  background: rgba(17, 17, 17, 0.04);
+  background: var(--app-surface-soft);
   padding: 0;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .hamburger-button:hover {
-  background: rgba(17, 17, 17, 0.08);
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
 }
 
 .hamburger-button span {
@@ -64,7 +64,7 @@
   width: 20px;
   height: 2px;
   border-radius: 999px;
-  background: #111111;
+  background: var(--app-text-strong);
   transition: transform 0.24s ease, opacity 0.2s ease, top 0.24s ease;
 }
 
@@ -97,7 +97,7 @@
 .top-link {
   border: none;
   background: transparent;
-  color: #555555;
+  color: var(--app-text-muted);
   font-size: 13px;
   font-weight: 700;
   padding: 6px 10px;
@@ -107,12 +107,12 @@
 }
 
 .top-link:hover {
-  background: rgba(17, 17, 17, 0.04);
-  color: #111111;
+  background: var(--app-surface-soft);
+  color: var(--app-text-strong);
 }
 
 .top-link-dark {
-  color: #111111;
+  color: var(--app-text-strong);
 }
 
 .top-link-disabled {
@@ -120,8 +120,56 @@
 }
 
 .top-link-disabled:hover {
-  background: rgba(17, 17, 17, 0.02);
-  color: #555555;
+  background: var(--app-surface-soft);
+  color: var(--app-text-muted);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  padding: 4px 9px 4px 5px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+}
+
+.theme-toggle:hover {
+  border-color: color-mix(in srgb, var(--point-color) 42%, transparent);
+  color: var(--app-text-strong);
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--point-color);
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle-thumb {
+  transform: translateX(16px);
+}
+
+.theme-toggle-label {
+  min-width: 32px;
+  text-align: left;
 }
 
 .admin-indicator {
@@ -134,7 +182,7 @@
 .session-timer {
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--point-soft);
   color: #9a6700;
   font-size: 11px;
   font-weight: 700;
@@ -153,8 +201,8 @@
   height: 32px;
   border: none;
   border-radius: 999px;
-  background: rgba(17, 17, 17, 0.08);
-  color: #111111;
+  background: var(--app-surface-soft);
+  color: var(--app-text-strong);
   font-size: 15px;
   cursor: pointer;
   transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
@@ -174,7 +222,7 @@
 .profile-button {
   border: 3px solid var(--point-color);
   background: none;
-  color: #0f172a;
+  color: var(--app-text-strong);
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 13px;
@@ -214,7 +262,7 @@
   }
 
   .topbar-actions.is-open {
-    max-height: 320px;
+    max-height: 390px;
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -222,6 +270,7 @@
 
   .top-link,
   .profile-button,
+  .theme-toggle,
   .admin-indicator,
   .session-tools {
     width: 100%;
@@ -231,13 +280,14 @@
   }
 
   .top-link,
-  .profile-button {
+  .profile-button,
+  .theme-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 10px 12px;
     border-radius: 14px;
-    background: rgba(17, 17, 17, 0.03);
+    background: var(--app-surface-soft);
   }
 
   .admin-indicator {

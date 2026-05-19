@@ -15,6 +15,12 @@ import {
 } from "../api/token";
 import HeaderBar from "./HeaderBar";
 
+const THEME_KEY = "color_theme";
+
+function getInitialTheme() {
+  return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+}
+
 function getTokenExpirationMs(token) {
   if (!token) return null;
 
@@ -50,12 +56,22 @@ export default function AppLayout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRefreshingSession, setIsRefreshingSession] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [theme, setTheme] = useState(getInitialTheme);
 
   const clearSession = () => {
     clearAuthData();
     setLoggedIn(false);
     setIsAdmin(false);
     setSessionRemainingMs(null);
+  };
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
 
   useEffect(() => {
@@ -293,6 +309,21 @@ export default function AppLayout() {
                 </div>
               )}
               {isAdmin && <div className="admin-indicator">admin</div>}
+              <button
+                className="theme-toggle"
+                type="button"
+                onClick={toggleTheme}
+                aria-pressed={theme === "dark"}
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+              >
+                <span className="theme-toggle-track">
+                  <span className="theme-toggle-thumb" />
+                </span>
+                <span className="theme-toggle-label">
+                  {theme === "dark" ? "Dark" : "Light"}
+                </span>
+              </button>
             </>
           }
         />
