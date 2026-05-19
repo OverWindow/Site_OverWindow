@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getPublicLinks,
   getAdminCategories,
@@ -11,6 +11,39 @@ import {
 } from "../api/links";
 import { getIsAdmin } from "../api/token";
 import "../styles/Sites.css";
+
+const SITES_CACHE_PREFIX = "sites_categories";
+const REFRESH_COOLDOWN_MS = 10000;
+
+function getSitesCacheKey(adminMode) {
+  return `${SITES_CACHE_PREFIX}_${adminMode ? "admin" : "public"}`;
+}
+
+function readCachedCategories(adminMode) {
+  try {
+    const cached = localStorage.getItem(getSitesCacheKey(adminMode));
+    if (!cached) return null;
+
+    const parsed = JSON.parse(cached);
+    return Array.isArray(parsed?.categories) ? parsed.categories : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedCategories(adminMode, categories) {
+  try {
+    localStorage.setItem(
+      getSitesCacheKey(adminMode),
+      JSON.stringify({
+        categories,
+        cached_at: new Date().toISOString(),
+      }),
+    );
+  } catch {
+    // Cache failures should not block the page from rendering fresh data.
+  }
+}
 
 function slugify(value) {
   return value
@@ -43,9 +76,14 @@ function applySortOrder(items) {
 
 export default function Sites() {
   const [categories, setCategories] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin] = useState(getIsAdmin());
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshAvailableAt, setRefreshAvailableAt] = useState(0);
+  const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0);
   const [pageError, setPageError] = useState("");
+  const hasLoadedInitialDataRef = useRef(false);
+  const refreshAvailableAtRef = useRef(0);
 
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategorySlug, setNewCategorySlug] = useState("");
@@ -61,30 +99,72 @@ export default function Sites() {
   const [draggingLinkMeta, setDraggingLinkMeta] = useState(null);
   const [dragOverLinkId, setDragOverLinkId] = useState(null);
 
-  useEffect(() => {
-    const admin = getIsAdmin();
-    setIsAdmin(admin);
-  }, []);
+  const loadData = async (adminMode, { force = false } = {}) => {
+    const cachedCategories = readCachedCategories(adminMode);
 
-  const loadData = async (adminMode) => {
+    if (!force && cachedCategories) {
+      setCategories(cachedCategories);
+      setPageError("");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      setIsLoading(true);
+      if (force) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       setPageError("");
 
       const data = adminMode
         ? await getAdminCategories()
         : await getPublicLinks();
-      setCategories(Array.isArray(data) ? data : []);
+      const nextCategories = Array.isArray(data) ? data : [];
+      setCategories(nextCategories);
+      writeCachedCategories(adminMode, nextCategories);
     } catch (error) {
       setPageError(error.message || "아이디를 불러오지 못했습니다");
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
+    if (hasLoadedInitialDataRef.current) return;
+
+    hasLoadedInitialDataRef.current = true;
     loadData(isAdmin);
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (!refreshAvailableAt) return undefined;
+
+    const updateCooldown = () => {
+      const remaining = Math.max(0, refreshAvailableAt - Date.now());
+      setCooldownRemainingMs(remaining);
+
+      if (remaining === 0) {
+        refreshAvailableAtRef.current = 0;
+        setRefreshAvailableAt(0);
+      }
+    };
+
+    updateCooldown();
+    const intervalId = window.setInterval(updateCooldown, 250);
+
+    return () => window.clearInterval(intervalId);
+  }, [refreshAvailableAt]);
+
+  const handleRefresh = async () => {
+    if (isRefreshing || Date.now() < refreshAvailableAtRef.current) return;
+
+    const nextRefreshAvailableAt = Date.now() + REFRESH_COOLDOWN_MS;
+    refreshAvailableAtRef.current = nextRefreshAvailableAt;
+    setRefreshAvailableAt(nextRefreshAvailableAt);
+    await loadData(isAdmin, { force: true });
+  };
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -104,7 +184,7 @@ export default function Sites() {
 
       setNewCategoryName("");
       setNewCategorySlug("");
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -127,7 +207,7 @@ export default function Sites() {
         is_visible: !!category.is_visible,
       });
 
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -152,7 +232,7 @@ export default function Sites() {
 
     try {
       await deleteCategory(categoryId);
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -185,7 +265,7 @@ export default function Sites() {
         is_visible: !!link.is_visible,
       });
 
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -197,7 +277,7 @@ export default function Sites() {
 
     try {
       await deleteLink(linkId);
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -241,7 +321,7 @@ export default function Sites() {
       }));
       setOpenNewLinkCategoryId((prev) => (prev === categoryId ? null : prev));
 
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
     }
@@ -291,10 +371,10 @@ export default function Sites() {
 
     try {
       await persistCategoryOrder(nextCategories);
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
-      await loadData(true);
+      await loadData(true, { force: true });
     }
   };
 
@@ -362,10 +442,10 @@ export default function Sites() {
 
     try {
       await persistLinkOrder(targetCategory.links || []);
-      await loadData(true);
+      await loadData(true, { force: true });
     } catch (error) {
       alert(error.message);
-      await loadData(true);
+      await loadData(true, { force: true });
     }
   };
 
@@ -376,6 +456,8 @@ export default function Sites() {
   };
 
   const compactCategories = useMemo(() => categories || [], [categories]);
+  const refreshCooldownSeconds = Math.ceil(cooldownRemainingMs / 1000);
+  const isRefreshDisabled = isRefreshing || cooldownRemainingMs > 0;
 
   return (
     <div className="sites-page">
@@ -386,6 +468,20 @@ export default function Sites() {
               <p className="sites-kicker">Archive</p>
               <div className="sites-title-row">
                 <h1 className="sites-title">Sites</h1>
+                <button
+                  className="sites-refresh-button"
+                  type="button"
+                  onClick={handleRefresh}
+                  disabled={isRefreshDisabled}
+                  title="API에서 사이트 목록 다시 불러오기"
+                  aria-label="API에서 사이트 목록 다시 불러오기"
+                >
+                  {isRefreshing
+                    ? "refreshing"
+                    : refreshCooldownSeconds > 0
+                      ? `refresh ${refreshCooldownSeconds}s`
+                      : "refresh"}
+                </button>
                 {isAdmin && (
                   <button
                     className="plus-edit-button sites-edit-button"

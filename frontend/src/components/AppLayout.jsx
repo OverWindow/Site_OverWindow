@@ -212,6 +212,9 @@ export default function AppLayout() {
               <Link to="/sites" className="top-link">
                 Sites
               </Link>
+              <Link to="/projects" className="top-link">
+                Projects
+              </Link>
               {loggedIn ? (
                 <Link to="/recommendations" className="top-link">
                   AI Picks

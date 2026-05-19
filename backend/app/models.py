@@ -3,6 +3,7 @@ from sqlalchemy import (
     BigInteger,
     String,
     Boolean,
+    Date,
     DateTime,
     ForeignKey,
     Text,
@@ -66,6 +67,55 @@ class CVSection(Base):
     sort_order = Column(Integer, nullable=False, default=0)
     is_visible = Column(Boolean, nullable=False, default=True)
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class CVProject(Base):
+    __tablename__ = "cv_projects"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    project_key = Column(String(100), nullable=False, unique=True)
+    title = Column(String(200), nullable=False)
+    subtitle = Column(String(300), nullable=True)
+    description = Column(Text, nullable=True)
+    content_json = Column(JSON, nullable=True)
+    github_url = Column(String(500), nullable=True)
+    demo_url = Column(String(500), nullable=True)
+    tech_stack = Column(JSON, nullable=True)
+    started_at = Column(Date, nullable=True)
+    ended_at = Column(Date, nullable=True)
+    is_featured = Column(Boolean, nullable=False, default=False)
+    is_visible = Column(Boolean, nullable=False, default=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    images = relationship(
+        "CVProjectImage",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="CVProjectImage.sort_order.asc(), CVProjectImage.id.asc()",
+    )
+
+
+class CVProjectImage(Base):
+    __tablename__ = "cv_project_images"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    project_id = Column(
+        BigInteger,
+        ForeignKey("cv_projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    image_url = Column(String(1000), nullable=False)
+    alt_text = Column(String(300), nullable=True)
+    caption = Column(String(500), nullable=True)
+    image_type = Column(String(50), nullable=False, default="screenshot")
+    is_thumbnail = Column(Boolean, nullable=False, default=False)
+    sort_order = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    project = relationship("CVProject", back_populates="images")
 
 
 class LinkCategory(Base):
