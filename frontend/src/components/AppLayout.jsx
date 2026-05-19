@@ -51,6 +51,13 @@ export default function AppLayout() {
   const [isRefreshingSession, setIsRefreshingSession] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
+  const clearSession = () => {
+    clearAuthData();
+    setLoggedIn(false);
+    setIsAdmin(false);
+    setSessionRemainingMs(null);
+  };
+
   useEffect(() => {
     async function bootstrapAuth() {
       if (!hasAuthTokens()) {
@@ -94,8 +101,7 @@ export default function AppLayout() {
       const remaining = expirationMs - Date.now();
 
       if (remaining <= 0) {
-        clearAuthData();
-        window.location.reload();
+        clearSession();
         return;
       }
 
@@ -150,10 +156,12 @@ export default function AppLayout() {
       setAuthData({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
-        is_admin: true,
+        is_admin: data.is_admin ?? true,
       });
 
-      window.location.reload();
+      setLoggedIn(true);
+      setIsAdmin(!!(data.is_admin ?? true));
+      closeLogin();
     } catch (error) {
       setLoginError(error.message || "로그인 과정 중 에러가 발생하였습니다.");
     } finally {
@@ -167,8 +175,11 @@ export default function AppLayout() {
     } catch (error) {
       console.error("logout failed:", error);
     } finally {
-      clearAuthData();
-      window.location.reload();
+      clearSession();
+
+      if (["/recommendations", "/recommendations/history", "/settings"].includes(location.pathname)) {
+        navigate("/", { replace: true });
+      }
     }
   };
 
@@ -180,8 +191,10 @@ export default function AppLayout() {
       setAuthData({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
-        is_admin: true,
+        is_admin: data.is_admin ?? isAdmin,
       });
+      setLoggedIn(true);
+      setIsAdmin(!!(data.is_admin ?? isAdmin));
 
       const nextExpirationMs = getTokenExpirationMs(data.access_token);
       if (nextExpirationMs) {
@@ -189,8 +202,7 @@ export default function AppLayout() {
       }
     } catch (error) {
       console.error("refresh failed:", error);
-      clearAuthData();
-      window.location.reload();
+      clearSession();
     } finally {
       setIsRefreshingSession(false);
     }
