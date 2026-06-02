@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+import os
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -25,6 +26,24 @@ from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+MAX_FAILED_LOGIN_ATTEMPTS = int(os.getenv("MAX_FAILED_LOGIN_ATTEMPTS", "5"))
+LOGIN_LOCK_MINUTES = int(os.getenv("LOGIN_LOCK_MINUTES", "15"))
+
+
+def _utcnow_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _is_login_locked(user: User, now: datetime) -> bool:
+    return user.locked_until is not None and user.locked_until > now
+
+
+def _raise_invalid_login() -> None:
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="이메일 또는 비밀번호가 올바르지 않습니다.",
+    )
+
 
 @router.post("/login", response_model=TokenResponse)
 def login(
@@ -33,12 +52,33 @@ def login(
     db: Session = Depends(get_db),
 ):
     user = db.query(User).filter(User.email == payload.email).first()
+    now = _utcnow_naive()
 
-    if not user or not verify_password(payload.password, user.password_hash):
+    if not user:
+        _raise_invalid_login()
+
+    if _is_login_locked(user, now):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="이메일 또는 비밀번호가 올바르지 않습니다.",
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="로그인 실패 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.",
         )
+
+    if user.locked_until is not None and user.locked_until <= now:
+        user.failed_login_attempts = 0
+        user.locked_until = None
+
+    if not verify_password(payload.password, user.password_hash):
+        user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+        if user.failed_login_attempts >= MAX_FAILED_LOGIN_ATTEMPTS:
+            user.locked_until = now + timedelta(minutes=LOGIN_LOCK_MINUTES)
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="로그인 실패 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.",
+            )
+
+        db.commit()
+        _raise_invalid_login()
 
     if not user.is_active:
         raise HTTPException(
@@ -63,7 +103,9 @@ def login(
         ip_address=request.client.host if request.client else None,
     )
 
-    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    user.last_login_at = now
+    user.failed_login_attempts = 0
+    user.locked_until = None
 
     db.add(db_token)
     db.commit()

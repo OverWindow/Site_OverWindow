@@ -25,7 +25,10 @@ export async function loginAdmin({ email, password }) {
   const data = await parseJsonSafe(response);
 
   if (!response.ok) {
-    throw new Error(data?.detail || "로그인에 실패했습니다.");
+    const error = new Error(data?.detail || "로그인에 실패했습니다.");
+    error.status = response.status;
+    error.detail = data?.detail;
+    throw error;
   }
 
   return data;

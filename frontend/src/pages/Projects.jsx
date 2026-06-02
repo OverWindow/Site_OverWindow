@@ -387,6 +387,7 @@ export default function Projects() {
   const [draft, setDraft] = useState(emptyProjectDraft);
   const [imageDraft, setImageDraft] = useState(emptyImageDraft);
   const [formError, setFormError] = useState("");
+  const [loadedImages, setLoadedImages] = useState({});
   const projectRefs = useRef({});
 
   const sortedProjects = useMemo(
@@ -553,6 +554,13 @@ export default function Projects() {
     });
   };
 
+  const markImageLoaded = (imageUrl) => {
+    setLoadedImages((prev) => ({
+      ...prev,
+      [imageUrl]: true,
+    }));
+  };
+
   return (
     <main className="projects-page">
       <section className="projects-header">
@@ -598,6 +606,9 @@ export default function Projects() {
               const thumbnail = getThumbnail(project);
               const images = getProjectImages(project);
               const isFirstProject = index === 0;
+              const isImageLoaded = thumbnail
+                ? !!loadedImages[thumbnail.image_url]
+                : true;
 
               return (
                 <article
@@ -607,17 +618,32 @@ export default function Projects() {
                     projectRefs.current[getProjectDomKey(project)] = node;
                   }}
                 >
-                  <div className="project-card-media">
+                  <div
+                    className={`project-card-media ${
+                      thumbnail && !isImageLoaded ? "is-loading" : ""
+                    }`}
+                  >
                     {thumbnail ? (
-                      <img
-                        src={thumbnail.image_url}
-                        alt={thumbnail.alt_text || project.title}
-                        width="360"
-                        height="240"
-                        loading={isFirstProject ? "eager" : "lazy"}
-                        fetchPriority={isFirstProject ? "high" : "low"}
-                        decoding="async"
-                      />
+                      <>
+                        {!isImageLoaded && (
+                          <div className="project-image-loading" aria-hidden="true">
+                            <div className="project-image-loading-bar" />
+                            <span>Loading image</span>
+                          </div>
+                        )}
+                        <img
+                          className={isImageLoaded ? "is-loaded" : ""}
+                          src={thumbnail.image_url}
+                          alt={thumbnail.alt_text || project.title}
+                          width="360"
+                          height="240"
+                          loading={isFirstProject ? "eager" : "lazy"}
+                          fetchPriority={isFirstProject ? "high" : "low"}
+                          decoding="async"
+                          onLoad={() => markImageLoaded(thumbnail.image_url)}
+                          onError={() => markImageLoaded(thumbnail.image_url)}
+                        />
+                      </>
                     ) : (
                       <div className="project-card-placeholder">
                         {project.title?.slice(0, 1) || "P"}

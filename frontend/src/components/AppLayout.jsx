@@ -16,9 +16,16 @@ import {
 import HeaderBar from "./HeaderBar";
 
 const THEME_KEY = "color_theme";
+const LOGIN_LOCK_KEY = "login_locked_until";
+const LOGIN_LOCK_MS = 15 * 60 * 1000;
 
 function getInitialTheme() {
   return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+}
+
+function getInitialLoginLockedUntil() {
+  const value = Number(localStorage.getItem(LOGIN_LOCK_KEY));
+  return Number.isFinite(value) && value > Date.now() ? value : 0;
 }
 
 function getTokenExpirationMs(token) {
@@ -57,6 +64,8 @@ export default function AppLayout() {
   const [isRefreshingSession, setIsRefreshingSession] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [theme, setTheme] = useState(getInitialTheme);
+  const [loginLockedUntil, setLoginLockedUntil] = useState(getInitialLoginLockedUntil);
+  const [loginLockRemainingMs, setLoginLockRemainingMs] = useState(0);
 
   const clearSession = () => {
     clearAuthData();
@@ -73,6 +82,37 @@ export default function AppLayout() {
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
+
+  const lockLogin = () => {
+    const lockedUntil = Date.now() + LOGIN_LOCK_MS;
+    localStorage.setItem(LOGIN_LOCK_KEY, String(lockedUntil));
+    setLoginLockedUntil(lockedUntil);
+    setLoginLockRemainingMs(LOGIN_LOCK_MS);
+  };
+
+  const clearLoginLock = () => {
+    localStorage.removeItem(LOGIN_LOCK_KEY);
+    setLoginLockedUntil(0);
+    setLoginLockRemainingMs(0);
+  };
+
+  useEffect(() => {
+    if (!loginLockedUntil) return undefined;
+
+    const updateRemaining = () => {
+      const remaining = Math.max(0, loginLockedUntil - Date.now());
+      setLoginLockRemainingMs(remaining);
+
+      if (remaining === 0) {
+        clearLoginLock();
+      }
+    };
+
+    updateRemaining();
+    const intervalId = window.setInterval(updateRemaining, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loginLockedUntil]);
 
   useEffect(() => {
     async function bootstrapAuth() {
@@ -155,6 +195,11 @@ export default function AppLayout() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    if (loginLockRemainingMs > 0) {
+      setLoginError("로그인 시도 횟수가 초과되었습니다.");
+      return;
+    }
+
     if (!email.trim() || !password.trim()) {
       setLoginError("이메일/비밀번호가 일치하지 않습니다.");
       return;
@@ -177,9 +222,15 @@ export default function AppLayout() {
 
       setLoggedIn(true);
       setIsAdmin(!!(data.is_admin ?? true));
+      clearLoginLock();
       closeLogin();
     } catch (error) {
-      setLoginError(error.message || "로그인 과정 중 에러가 발생하였습니다.");
+      if (error.status === 429) {
+        lockLogin();
+        setLoginError("비밀번호를 5회 틀려 15분 동안 로그인이 잠겼습니다.");
+      } else {
+        setLoginError(error.message || "로그인 과정 중 에러가 발생하였습니다.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -227,6 +278,9 @@ export default function AppLayout() {
   if (isBootstrapping) {
     return null;
   }
+
+  const isLoginLocked = loginLockRemainingMs > 0;
+  const loginLockRemainingText = formatRemainingTime(loginLockRemainingMs);
 
   return (
     <div className="app minimal-app">
@@ -349,7 +403,7 @@ export default function AppLayout() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="username"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoginLocked}
               />
 
               <input
@@ -359,17 +413,27 @@ export default function AppLayout() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoginLocked}
               />
 
               {loginError && <p className="login-error">{loginError}</p>}
+              {isLoginLocked && (
+                <div className="login-lock-notice" role="status" aria-live="polite">
+                  <strong>Login locked</strong>
+                  <span>{loginLockRemainingText} 후 다시 시도할 수 있습니다.</span>
+                </div>
+              )}
 
               <button
                 className="login-submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoginLocked}
                 type="submit"
               >
-                {isSubmitting ? "Loading..." : "Continue"}
+                {isLoginLocked
+                  ? `Locked ${loginLockRemainingText}`
+                  : isSubmitting
+                    ? "Loading..."
+                    : "Continue"}
               </button>
             </form>
           </div>
