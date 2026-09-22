@@ -1,4 +1,40 @@
-# Site_Overwidow
+# OverWindow
+
+개인 프로필과 프로젝트, 자주 사용하는 사이트를 한곳에 모으고, 짧은 아이디어만으로 유용한 웹사이트와 앱을 추천받을 수 있는 포트폴리오 서비스입니다.
+
+> **Live Service** · [overwindow.com](https://overwindow.com)
+
+## 실제 서비스 화면
+
+### Home
+
+개발자 프로필과 기술 분야를 한눈에 확인할 수 있는 메인 화면입니다.
+
+![OverWindow 홈 화면](./images/overwindow1.png)
+
+### Sites
+
+배포, 시험, AI 도구 등 자주 사용하는 사이트를 카테고리별로 모아 볼 수 있습니다.
+
+![OverWindow 사이트 아카이브 화면](./images/overwindow2.png)
+
+### Projects
+
+진행한 프로젝트의 소개, 기술 스택, GitHub 및 데모 링크를 확인할 수 있습니다.
+
+![OverWindow 프로젝트 화면](./images/overwindow3.png)
+
+### AI Picks
+
+제품 아이디어를 짧게 입력하면 개발에 참고할 웹사이트, 앱, API를 AI가 추천합니다.
+
+![OverWindow AI 추천 입력 화면](./images/overwindow4.png)
+
+### Recommendation History
+
+이전에 입력한 아이디어와 AI가 반환한 추천 결과를 다시 확인할 수 있습니다.
+
+![OverWindow AI 추천 기록 화면](./images/overwindow5.png)
 
 ## Backend local run
 
